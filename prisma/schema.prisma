@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") // Pastikan untuk mengatur variabel environment ini
+}
+
+model User {
+  id        String    @id @default(uuid()) @db.Char(36) // UUID sebagai id
+  name      String    @db.VarChar(100)
+  email     String    @unique @db.VarChar(100)
+  password  String    @db.VarChar(255)
+  bio       String?   @db.Text
+  token       String?   @db.VarChar(255)
+  postings  Posting[] // Relasi dengan posting
+  comments  Comment[] // Relasi dengan comment
+  likes     Like[]    // Relasi dengan like
+}
+
+model Posting {
+  id         String    @id @default(uuid()) @db.Char(36) // UUID sebagai id
+  idUser     String    @db.Char(36) // Foreign key dari User (UUID)
+  title      String    @db.VarChar(255)
+  createdAt  DateTime  @default(now()) @db.Timestamp(0)
+  user       User      @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  images     Image[]   // Relasi dengan image
+  comments   Comment[] // Relasi dengan comment
+  likes      Like[]    // Relasi dengan like
+}
+
+model Image {
+  id        Int      @id @default(autoincrement()) // Auto-increment integer
+  idPosting String   @db.Char(36) // Foreign key dari Posting (UUID)
+  image     String   @db.VarChar(255)
+  posting   Posting  @relation(fields: [idPosting], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement()) // Auto-increment integer
+  idUser     String   @db.Char(36) // Foreign key dari User (UUID)
+  idPosting  String   @db.Char(36) // Foreign key dari Posting (UUID)
+  titleComment String @db.Text
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  user       User     @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  posting    Posting  @relation(fields: [idPosting], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id         Int      @id @default(autoincrement()) // Auto-increment integer
+  idUser     String   @db.Char(36) // Foreign key dari User (UUID)
+  idPosting  String   @db.Char(36) // Foreign key dari Posting (UUID)
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  user       User     @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  posting    Posting  @relation(fields: [idPosting], references: [id], onDelete: Cascade)
+}
