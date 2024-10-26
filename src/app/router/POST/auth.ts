@@ -92,3 +92,22 @@ exports.signOut = async (req : Request, res : Response) => {
         return res.status(500).send("Error Server")        
     }
 }
+exports.Cek = async (req : Request, res : Response) => {
+    const {email} = req.body
+
+    try {
+        const data = await prisma.user.update({
+            where : {
+                email : email,
+            },
+            data : {
+                token : null,
+            }
+        })
+
+        res.status(200).send("success")
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send("Error Server")        
+    }
+}
